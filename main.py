@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -11,6 +11,7 @@ class PeakBase(SQLModel):
     latitude: Annotated[float, Field(ge=-90, le=90, index=True)]
     longitude: Annotated[float, Field(ge=-180, le=180, index=True)]
     altitude: Annotated[int, Field(ge=0)]
+
 
 class Peak(PeakBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -26,6 +27,7 @@ class PeakCreate(PeakBase):
 
 class PeakUpdate(PeakBase):
     pass
+
 
 
 # Database initialisation and connection
@@ -93,10 +95,25 @@ def create_peak(peak: PeakCreate, session: SessionDep):
 @app.get("/peaks/", response_model=list[PeakPublic])
 def read_peaks(
     session: SessionDep,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    min_lat: Optional[float] = Query(None, ge=-90, le=90, description="Minimum latitude of the bounding box"),
+    max_lat: Optional[float] = Query(None, ge=-90, le=90, description="Maximum latitude of the bounding box"),
+    min_lon: Optional[float] = Query(None, ge=-180, le=180, description="Minimum longitude of the bounding box"),
+    max_lon: Optional[float] = Query(None, ge=-180, le=180, description="Maximum longitude of the bounding box"),
 ) -> list[Peak]:
-    peaks = session.exec(select(Peak).offset(offset).limit(limit)).all()
+    statement = select(Peak)
+
+    # Apply each provided box filters if provided
+    if min_lat is not None:
+        statement = statement.where(Peak.latitude >= min_lat)
+    if max_lat is not None:
+        statement = statement.where(Peak.latitude <= max_lat)
+    if min_lon is not None:
+        statement = statement.where(Peak.longitude >= min_lon)
+    if max_lon is not None:
+        statement = statement.where(Peak.longitude <= max_lon)
+
+    peaks = session.exec(statement)
+
     return peaks
 
 
