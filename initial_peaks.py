@@ -1,11 +1,15 @@
 from sqlmodel import Session
+
 from app.main import Peak, engine
 
 peak_1 = Peak(
     name="Mount Desert", latitude=44.342827, longitude=-68.307138, altitude=55
 )
 peak_2 = Peak(
-    name="Mount Cadillac", latitude=44.409286, longitude=-68.247501, altitude=466
+    name="Mount Cadillac",
+    latitude=44.409286,
+    longitude=-68.247501,
+    altitude=466,
 )
 peak_3 = Peak(
     name="Mount Taranaki Maunga",
@@ -14,12 +18,20 @@ peak_3 = Peak(
     altitude=2518,
 )
 peak_4 = Peak(
-    name="Mount Tongariro", latitude=-39.1333, longitude=175.6500, altitude=1978
+    name="Mount Tongariro",
+    latitude=-39.1333,
+    longitude=175.6500,
+    altitude=1978,
 )
 peak_5 = Peak(
-    name="Monte Perdido", latitude=42.6499974, longitude=0.0499998, altitude=3355
+    name="Monte Perdido",
+    latitude=42.6499974,
+    longitude=0.0499998,
+    altitude=3355,
 )
-peak_6 = Peak(name="Mont Blanc", latitude=45.833641, longitude=6.864594, altitude=4806)
+peak_6 = Peak(
+    name="Mont Blanc", latitude=45.833641, longitude=6.864594, altitude=4806
+)
 
 with Session(engine) as session:
     session.add(peak_1)

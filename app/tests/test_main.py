@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
-import pytest
 from httpx import ASGITransport, AsyncClient
 
+import pytest
 from app.main import app
 
 client = TestClient(app)
@@ -22,7 +22,9 @@ async def test_read_peaks_within_bouding_box():
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
-        response = await ac.get("/peaks/?min_lat=45&max_lat=78&min_lon=5&max_lon=7")
+        response = await ac.get(
+            "/peaks/?min_lat=45&max_lat=78&min_lon=5&max_lon=7"
+        )
     assert response.status_code == 200
     assert response.json() == [
         {
