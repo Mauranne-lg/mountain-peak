@@ -6,8 +6,9 @@ dist/
 wheels/
 *.egg-info
 
-# Virtual environments
+# Virtual environments/ env files
 .venv
+.env
 
 # Local database
 database.db

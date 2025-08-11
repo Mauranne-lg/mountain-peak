@@ -1,8 +1,9 @@
 from typing import Annotated, Optional
 from contextlib import asynccontextmanager
-
+from functools import lru_cache
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from . import config
 
 
 # Models
@@ -29,9 +30,14 @@ class PeakUpdate(PeakBase):
     pass
 
 
+@lru_cache
+def get_settings():
+    return config.Settings()
+
+
 # Database initialisation and connection
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+db_name = get_settings().database_name
+sqlite_url = f"sqlite:///{db_name}"
 
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
