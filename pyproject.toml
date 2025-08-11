@@ -11,5 +11,23 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
     "ruff>=0.12.7",
+]
+
+[tool.coverage.run]
+source = ['main']
+
+[tool.pytest.ini_options]
+# Also see
+# https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml
+# https://pytest-cov.readthedocs.io/en/latest/config.html
+# If you want to see console output from tests, include -s flag
+addopts = [
+    '--cov-fail-under=90',
+    '--cov-report=html:pytest',
+    '--cov-report=term-missing',
+    '--junitxml=report.xml'
 ]
