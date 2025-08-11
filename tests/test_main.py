@@ -1,49 +1,91 @@
 from fastapi.testclient import TestClient
+import pytest
+from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 
 client = TestClient(app)
 
 
-def test_read_peaks():
-    response = client.get("/peaks/")
+@pytest.mark.anyio
+async def test_read_peaks():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.get("/peaks/")
     assert response.status_code == 200
     assert len(response.json()) == 6
 
 
-def test_read_peaks_within_bouding_box():
-    response = client.get("/peaks/?min_lat=45&max_lat=78&min_lon=5&max_lon=7")
+@pytest.mark.anyio
+async def test_read_peaks_within_bouding_box():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.get("/peaks/?min_lat=45&max_lat=78&min_lon=5&max_lon=7")
     assert response.status_code == 200
-    assert response.json() == [{'name': 'Mont Blanc', 'latitude': 45.833641, 'longitude': 6.864594, 'altitude': 4806, 'id': 6}]
+    assert response.json() == [
+        {
+            "name": "Mont Blanc",
+            "latitude": 45.833641,
+            "longitude": 6.864594,
+            "altitude": 4806,
+            "id": 6,
+        }
+    ]
 
 
-def test_read_peaks_within_bouding_box_bad_data():
-    response = client.get("/peaks/?min_lat=-100&max_lat=100&min_lon=-190&max_lon=190")
+@pytest.mark.anyio
+async def test_read_peaks_within_bouding_box_bad_data():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.get(
+            "/peaks/?min_lat=-100&max_lat=100&min_lon=-190&max_lon=190"
+        )
     assert response.status_code == 422
 
 
-def test_read_peak():
-    response = client.get("/peaks/1")
+@pytest.mark.anyio
+async def test_read_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.get("/peaks/1")
     assert response.status_code == 200
-    assert response.json() == {'name': 'Mount Desert', 'latitude': 44.342827, 'longitude': -68.307138, 'altitude': 55, 'id': 1}
+    assert response.json() == {
+        "name": "Mount Desert",
+        "latitude": 44.342827,
+        "longitude": -68.307138,
+        "altitude": 55,
+        "id": 1,
+    }
 
 
-def test_read_nonexistent_peak():
-    response = client.get("peaks/7")
+@pytest.mark.anyio
+async def test_read_nonexistent_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.get("peaks/7")
     assert response.status_code == 404
     assert response.json() == {"detail": "Peak not found"}
 
 
-def test_create_peak():
-    response = client.post(
-        "/peaks/",
-        json={
-            "name": "Mont Petit Vignemale",
-            "latitude": 42.774712,
-            "longitude": -0.135086,
-            "altitude": 3032,
-        },
-    )
+@pytest.mark.anyio
+async def test_create_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.post(
+            "/peaks/",
+            json={
+                "name": "Mont Petit Vignemale",
+                "latitude": 42.774712,
+                "longitude": -0.135086,
+                "altitude": 3032,
+            },
+        )
     assert response.status_code == 200
     assert response.json() == {
         "id": 7,
@@ -54,16 +96,20 @@ def test_create_peak():
     }
 
 
-def test_update_peak():
-    response = client.patch(
-        "/peaks/7",
-        json={
-            "name": "Petit Vignemale",
-            "latitude": 42.774612,
-            "longitude": -0.1349086,
-            "altitude": 3032,
-        },
-    )
+@pytest.mark.anyio
+async def test_update_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.patch(
+            "/peaks/7",
+            json={
+                "name": "Petit Vignemale",
+                "latitude": 42.774612,
+                "longitude": -0.1349086,
+                "altitude": 3032,
+            },
+        )
     assert response.status_code == 200
     assert response.json() == {
         "id": 7,
@@ -74,29 +120,41 @@ def test_update_peak():
     }
 
 
-def test_update_peak_non_existing_peak():
-    response = client.patch(
-        "/peaks/25",
-        json={
-            "name": "Petit Vignemale",
-            "latitude": 42.774712,
-            "longitude": -0.135086,
-            "altitude": 3032,
-        },
-    )
+@pytest.mark.anyio
+async def test_update_peak_non_existing_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.patch(
+            "/peaks/25",
+            json={
+                "name": "Petit Vignemale",
+                "latitude": 42.774712,
+                "longitude": -0.135086,
+                "altitude": 3032,
+            },
+        )
     assert response.status_code == 404
 
 
-
-def test_delete_peak():
-    response = client.delete(
-        "/peaks/7",
-    )
+@pytest.mark.anyio
+async def test_delete_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.delete(
+            "/peaks/7",
+        )
     assert response.status_code == 200
 
-def test_delete_nonexistent_peak():
-    response = client.delete(
-        "/peaks/25",
-    )
+
+@pytest.mark.anyio
+async def test_delete_nonexistent_peak():
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.delete(
+            "/peaks/25",
+        )
     assert response.status_code == 404
     assert response.json() == {"detail": "Peak not found"}

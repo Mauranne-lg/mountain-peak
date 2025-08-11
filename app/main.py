@@ -57,7 +57,7 @@ app = FastAPI(lifespan=lifespan)
 
 # Routes - CRUD peaks
 @app.post("/peaks/", response_model=PeakPublic)
-def create_peak(peak: PeakCreate, session: SessionDep):
+async def create_peak(peak: PeakCreate, session: SessionDep):
     db_peak = Peak.model_validate(peak)
     session.add(db_peak)
     session.commit()
@@ -66,12 +66,20 @@ def create_peak(peak: PeakCreate, session: SessionDep):
 
 
 @app.get("/peaks/", response_model=list[PeakPublic])
-def read_peaks(
+async def read_peaks(
     session: SessionDep,
-    min_lat: Optional[float] = Query(None, ge=-90, le=90, description="Minimum latitude of the bounding box"),
-    max_lat: Optional[float] = Query(None, ge=-90, le=90, description="Maximum latitude of the bounding box"),
-    min_lon: Optional[float] = Query(None, ge=-180, le=180, description="Minimum longitude of the bounding box"),
-    max_lon: Optional[float] = Query(None, ge=-180, le=180, description="Maximum longitude of the bounding box"),
+    min_lat: Optional[float] = Query(
+        None, ge=-90, le=90, description="Minimum latitude of the bounding box"
+    ),
+    max_lat: Optional[float] = Query(
+        None, ge=-90, le=90, description="Maximum latitude of the bounding box"
+    ),
+    min_lon: Optional[float] = Query(
+        None, ge=-180, le=180, description="Minimum longitude of the bounding box"
+    ),
+    max_lon: Optional[float] = Query(
+        None, ge=-180, le=180, description="Maximum longitude of the bounding box"
+    ),
 ) -> list[Peak]:
     statement = select(Peak)
 
@@ -91,7 +99,7 @@ def read_peaks(
 
 
 @app.get("/peaks/{peak_id}", response_model=PeakPublic)
-def read_peak(peak_id: int, session: SessionDep) -> Peak:
+async def read_peak(peak_id: int, session: SessionDep) -> Peak:
     peak = session.get(Peak, peak_id)
     if not peak:
         raise HTTPException(status_code=404, detail="Peak not found")
@@ -99,7 +107,7 @@ def read_peak(peak_id: int, session: SessionDep) -> Peak:
 
 
 @app.patch("/peaks/{peak_id}", response_model=PeakPublic)
-def update_peak(peak_id: int, peak: PeakUpdate, session: SessionDep):
+async def update_peak(peak_id: int, peak: PeakUpdate, session: SessionDep):
     peak_db = session.get(Peak, peak_id)
     if not peak_db:
         raise HTTPException(status_code=404, detail="Peak not found")
@@ -112,7 +120,7 @@ def update_peak(peak_id: int, peak: PeakUpdate, session: SessionDep):
 
 
 @app.delete("/peaks/{peak_id}")
-def delete_peak(peak_id: int, session: SessionDep):
+async def delete_peak(peak_id: int, session: SessionDep):
     peak = session.get(Peak, peak_id)
     if not peak:
         raise HTTPException(status_code=404, detail="Peak not found")
