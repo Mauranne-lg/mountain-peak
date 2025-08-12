@@ -42,8 +42,11 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to Mountain Peak API ! "
-            "Explore documentation available to get peaks!"}
+    return {
+        "message": "Welcome to Mountain Peak API! "
+        "Explore documentation available to get peaks!"
+    }
+
 
 # Routes - CRUD peaks
 @app.get("/peaks/", response_model=list[PeakPublic])

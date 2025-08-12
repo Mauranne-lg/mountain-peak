@@ -2,6 +2,8 @@ from sqlmodel import Session
 
 from app.main import Peak, engine
 
+print("Load initial data...")
+
 peak_1 = Peak(
     name="Mount Desert", latitude=44.342827, longitude=-68.307138, altitude=55
 )
@@ -42,3 +44,5 @@ with Session(engine) as session:
     session.add(peak_6)
 
     session.commit()
+
+print("Initial data loaded")
